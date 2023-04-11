@@ -3,8 +3,8 @@ import logging
 from sanic import Sanic, json
 
 import util
-from src.detect import start_detect
-from src.trans import start_trans
+from detect import start_detect
+from trans import start_trans
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(format="[%(asctime)s %(filename)s [line:%(lineno)d]] %(levelname)s: %(message)s",
