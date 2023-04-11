@@ -5,20 +5,23 @@ from typing import Text
 import whisper
 from whisper import Whisper
 
+from test_detect import detect_language
+
 logger = logging.getLogger(__name__)
-logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
+logging.basicConfig(format="[%(asctime)s %(filename)s [line:%(lineno)d]] %(levelname)s: %(message)s", level=logging.INFO)
 
-rootPath = "../audio/djx.mp3"
-
-lng = "zh"
-
+rootPath = None
+lng = None
 
 def start():
     logger.info(f"whisper 可用的模型：\n{whisper.available_models()}")
-    type = "tiny"
+    type = "medium"
     logger.info(f"选择的模型：{type}")
     model: Whisper = loadModel(type)
-    transcription = trans(model)
+    language: Text = detect_language(model, rootPath)
+    print("模型识别语言：", language)
+    lng = language
+    transcription = transcribe(model, lng)
     write(transcription, type)
 
 
@@ -29,10 +32,11 @@ def loadModel(type: Text) -> Whisper:
     return model
 
 
-def trans(model):
+def transcribe(model, lng):
     logger.info(f"指定的语言：{lng}")
     logger.info("开始识别：")
-    result = model.transcribe(audio=rootPath, verbose=True, language=lng)
+    prompt = '以下是普通话的句子, 隋总'
+    result = model.transcribe(audio=rootPath, verbose=True, language=lng, initial_prompt=prompt)
     logger.debug("result debug:\n", result)
     transcription = result["text"]
     return transcription
@@ -48,4 +52,5 @@ def write(transcription, type):
 
 
 if __name__ == '__main__':
+    rootPath = "../audio/7a11f71b391bb63f9007f0e37601a77d.mp4"
     start()
