@@ -2,32 +2,45 @@ import logging
 
 from sanic import Sanic, json
 
-from trans import start
-from util import ensure_upload_path, register_host_ip, list_upload_files
+import util
+from src.detect import start_detect
+from src.trans import start_trans
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(format="[%(asctime)s %(filename)s [line:%(lineno)d]] %(levelname)s: %(message)s",
                     level=logging.DEBUG)
 
-upload_file_path = "../upload/"
-
 app = Sanic("whisper")
 
 
-@app.post("/upload")
-async def upload(request):
+@app.post("/detect")
+async def detect(request):
+    modleType = request.args.get("model")
     file = request.files.get('file')
-    filePath = upload_file_path + file.name
+    filePath = util.upload_file_path + file.name
     with open(filePath, "wb") as f:
         f.write(file.body)
-    transcription = await start(filePath)
-    return json({"status": 200, "message": transcription}, ensure_ascii=False,
+    lng = await start_detect(filePath, modleType)
+    return json({"status": 200, "message": lng}, ensure_ascii=False,
+                content_type='application/json;charset=utf-8')
+
+
+@app.post("/trans")
+async def trans(request):
+    modleType = request.args.get("model")
+    lng = request.args.get("lng")
+    file = request.files.get('file')
+    filePath = util.upload_file_path + file.name
+    with open(filePath, "wb") as f:
+        f.write(file.body)
+    text = await start_trans(filePath, modleType, lng)
+    return json({"status": 200, "message": text}, ensure_ascii=False,
                 content_type='application/json;charset=utf-8')
 
 
 @app.get("/listfile")
 async def list(request):
-    files = list_upload_files()
+    files = util.list_upload_files()
     return json({"status": 200, "message": files}, ensure_ascii=False,
                 content_type='application/json;charset=utf-8')
 
@@ -44,8 +57,8 @@ async def hello(request):
                 content_type='application/json;charset=utf-8')
 
 
-app.register_listener(ensure_upload_path, "after_server_start")
-app.register_listener(register_host_ip, "after_server_start")
+app.register_listener(util.ensure_upload_path, "after_server_start")
+app.register_listener(util.register_host_ip, "after_server_start")
 
 if __name__ == '__main__':
     port = 9090

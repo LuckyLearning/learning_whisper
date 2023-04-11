@@ -1,6 +1,6 @@
 import os
-from pyngrok import ngrok
 
+from pyngrok import ngrok
 
 upload_file_path = "../upload/"
 
@@ -13,6 +13,7 @@ def ensure_upload_path(app, _):
 def register_host_ip(app, _):
     public_url = ngrok.connect(addr=9090, port=9090, bind_tls=True)
     print(public_url)
+
 
 def list_upload_files():
     folders = []

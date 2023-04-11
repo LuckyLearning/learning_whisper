@@ -12,15 +12,19 @@ rootPath = None
 lng = None
 
 
-async def start(filePath):
+async def start_trans(filePath, modleType, lng):
     logger.debug(f"whisper 可用的模型：\n{whisper.available_models()}")
-    type = "medium"
-    logger.debug(f"选择的模型：{type}")
-    model: Whisper = loadModel(type)
-    lng = "zh"
-    transcription, segments = transcribe(filePath, model, lng)
-    write(filePath, segments, type)
-    return transcription, segments
+    if not modleType:
+        logger.debug("未指定模型，使用默认模型：tiny")
+        modleType = "tiny"
+    logger.debug(f"选择的模型：{modleType}")
+    model: Whisper = loadModel(modleType)
+    if not lng:
+        logger.debug("未指定语言，使用默认语言：zh")
+        lng = "zh"
+    text, segments = transcribe(filePath, model, lng)
+    write(filePath, segments, modleType)
+    return text
 
 
 def loadModel(type: Text) -> Whisper:
@@ -35,9 +39,9 @@ def transcribe(filePath, model, lng):
     logger.info("开始识别：")
     prompt = '以下是普通话的句子'
     result = model.transcribe(audio=filePath, language=lng, initial_prompt=prompt)
-    transcription = result["text"]
+    text = result["text"]
     segments = result['segments']
-    return transcription, segments
+    return text, segments
 
 
 def write(filePath, segments, type):
