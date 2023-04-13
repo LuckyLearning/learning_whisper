@@ -1,0 +1,8 @@
+# 上传文件的路径，基于项目根路径
+upload: upload
+# 模型的路径，基于项目根路径
+models: models
+# 识别结果的路径，基于项目根路径
+result: result
+# ngrok的auth配置
+ngrok:

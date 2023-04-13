@@ -6,13 +6,15 @@ import whisper
 from whisper import Whisper
 from whisper.utils import format_timestamp
 
+from src.util import get_download_model_path, get_result_path, get_upload_file_path
+
 logger = logging.getLogger(__name__)
 
 rootPath = None
 lng = None
 
 
-async def start_trans(filePath, modleType, lng):
+async def start_trans(filename, modleType, lng):
     logger.debug(f"whisper 可用的模型：\n{whisper.available_models()}")
     if not modleType:
         logger.debug("未指定模型，使用默认模型：tiny")
@@ -22,14 +24,15 @@ async def start_trans(filePath, modleType, lng):
     if not lng:
         logger.debug("未指定语言，使用默认语言：zh")
         lng = "zh"
+    filePath = os.path.join(get_upload_file_path(), filename)
     text, segments = transcribe(filePath, model, lng)
-    write(filePath, segments, modleType)
+    write(filename, segments, modleType)
     return text
 
 
 def loadModel(type: Text) -> Whisper:
     logger.debug("开始装载模型".center(60, "#"))
-    model = whisper.load_model(name=type, download_root="../models")
+    model = whisper.load_model(name=type, download_root=get_download_model_path())
     logger.debug("模型装载完成".center(60, "#"))
     return model
 
@@ -44,10 +47,9 @@ def transcribe(filePath, model, lng):
     return text, segments
 
 
-def write(filePath, segments, type):
-    path1 = os.path.splitext(filePath)[0]
-    filename = os.path.split(path1)[-1]
-    filepath = f"../result/{filename}-{type}.txt"
+def write(filename, segments, type):
+    result_path = get_result_path()
+    filepath = f"{result_path}/{filename}-{type}.txt"
     if os.path.exists(filepath):
         os.remove(filepath)
     for segment in segments:
