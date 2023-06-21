@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Upload File Example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      /* Define the style for the form */
+      form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 20px;
+      }
+      input[type="file"] {
+        margin-bottom: 20px;
+      }
+      input[type="submit"] {
+        padding: 10px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      input[type="submit"]:hover {
+        background-color: #3e8e41;
+      }
+      /* Define the style for the result */
+      .result {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      /* Define the style for the loading animation */
+      .loading {
+        display: none;
+        margin-top: 20px;
+        text-align: center;
+      }
+      .loading .spinner {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border-top: 3px solid #4CAF50;
+        border-right: 3px solid transparent;
+        animation: spin 1s linear infinite;
+        margin: 0 auto; /* Add this line to center the spinner horizontally */
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Upload File Example</h1>
+    <form method="POST" enctype="multipart/form-data" id="upload-form">
+      <input type="file" name="file">
+      <input type="submit" value="Submit" id="submit-button">
+    </form>
+    <div class="result" id="result"></div>
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+    </div>
+    <script>
+      // Add event listener for form submit
+      document.getElementById("upload-form").addEventListener("submit", function(event) {
+        // Prevent the default form submission behavior
+        event.preventDefault();
+        // Display the loading animation
+        var loadingDiv = document.getElementById("loading");
+        loadingDiv.style.display = "block";
+        // Get the form data
+        var formData = new FormData(event.target);
+        // Send a POST request to the server
+        fetch("/upload", {
+          method: "POST",
+          body: formData
+        })
+        .then(function(response) {
+          // Parse the response as text
+          return response.text();
+        })
+        .then(function(result) {
+          // Hide the loading animation
+          loadingDiv.style.display = "none";
+          // Display the result in the result div
+          document.getElementById("result").innerHTML = result;
+        });
+      });
+    </script>
+  </body>
+</html>
