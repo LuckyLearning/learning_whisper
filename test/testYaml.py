@@ -10,4 +10,5 @@ if not os.path.exists(filepath):
 
 with open(filepath, encoding="utf8") as f:
     config = yaml.safe_load(f)
+    print("="*10)
     print(config)
